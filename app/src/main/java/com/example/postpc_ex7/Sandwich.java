@@ -9,7 +9,7 @@ public class Sandwich {
     private boolean hummus;
     private boolean tahini;
     private String comment;
-    private String Status;
+    private String status;
 
 
     public Sandwich(String customerName, int pickles, boolean hummus, boolean tahini, String comment, String status) {
@@ -19,7 +19,24 @@ public class Sandwich {
         this.hummus = hummus;
         this.tahini = tahini;
         this.comment = comment;
-        Status = status;
+        this.status = status;
+    }
+
+    public Sandwich() {
+        this.id = UUID.randomUUID().toString();
+        this.status = "init";
+        customerName = "noname";
+        comment = "";
+    }
+
+    public Sandwich(Sandwich o){
+        this.id = o.id;
+        this.customerName = o.customerName;
+        this.comment = o.comment;
+        this.pickles = o.pickles;
+        this.hummus = o.hummus;
+        this.tahini = o.tahini;
+        this.status = o.status;
     }
 
     @Override
@@ -31,7 +48,7 @@ public class Sandwich {
                 ", hummus=" + hummus +
                 ", tahini=" + tahini +
                 ", comment='" + comment + '\'' +
-                ", Status='" + Status + '\'' +
+                ", Status='" + status + '\'' +
                 '}';
     }
 
@@ -81,10 +98,10 @@ public class Sandwich {
     }
 
     public String getStatus() {
-        return Status;
+        return status;
     }
 
     public void setStatus(String status) {
-        Status = status;
+        this.status = status;
     }
 }

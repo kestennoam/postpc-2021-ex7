@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="411dp"
+        android:layout_height="590dp"
+        android:gravity="center"
+        android:text="Your Sandwich is Ready..."
+        android:textSize="34sp"
+        android:textStyle="bold"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-2dp"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/gotItButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        android:layout_width="400dp"
+        android:gravity="bottom"
+        android:text="Got it"
+        android:layout_marginTop="80dp"
+        android:textAlignment="center"
+        android:layout_height="40dp"
+        tools:ignore="MissingConstraints,RtlCompat" />
+</androidx.constraintlayout.widget.ConstraintLayout>

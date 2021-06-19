@@ -3,31 +3,106 @@ package com.example.postpc_ex7;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
+    public final String NO_SANDWICH = "not ordered yet";
+    private final String CUSTOMER_NAME = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        RachelApp app = RachelApp.getInstance();
+        Database db = Database.getInstance();
 
-        FirebaseApp.initializeApp(this);
+        //todo set user name app and order
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 
-        setContentView(R.layout.activity_rachel_sandwich);
-        View textViewRachelSandwich = findViewById(R.id.textViewRachelSandwich);
+        String sandwichId = sp.getString("sandwichId", NO_SANDWICH);
+
+        //todo not sure needed
+        // no sandwich yet
+        if (sandwichId.equals(NO_SANDWICH)) {
+            System.out.println("No sandwich yet");
+            moveToNewOrderActivity();
+            return;
+        }
+
+        //
+        Task<DocumentSnapshot> documentSnapshotTask = db.downloadSandwich(sandwichId)
+                .addOnSuccessListener(res -> {
+                    if (res == null) {
+                        System.out.println("moved to null");
+                        moveToNewOrderActivity();
+                        return;
+                    }
+                    Sandwich sandwich = res.toObject(Sandwich.class);
+                    if (sandwich == null) {
+                        System.out.println("moved to sandwich null");
+                        moveToNewOrderActivity();
+                    } else if (sandwich.getStatus().equals("init")) {
+                        System.out.println("init status");
+                        moveToNewOrderActivity();
+                    } else if (sandwich.getStatus().equals("waiting")) {
+                        System.out.println("moved to sandwich waiting");
+                        moveToEditOrderActivity();
+                    } else if (sandwich.getStatus().equals("in-progress")) {
+                        System.out.println("moved to sandwich in progress");
+                        moveToInProgressOrderActivity();
+                    } else if (sandwich.getStatus().equals("ready")) {
+                        System.out.println("moved to sandwich ready");
+                        moveToReadyOrderActivity();
+                    } else if (sandwich.getStatus().equals("done")) {
+                        System.out.println("moved to sandwich done");
+                        moveToNewOrderActivity();
+                    } else {
+                        System.err.println("Error in status");
+                    }
+                })
+                .addOnFailureListener(res -> System.err.println("error in reading order id"));
+
+    }
+
+    private void moveToNewOrderActivity() {
+        Intent intent = new Intent(this, NewOrderActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void moveToEditOrderActivity() {
+        Intent intent = new Intent(this, EditOrderActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void moveToInProgressOrderActivity() {
+        Intent intent = new Intent(this, InProgressActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void moveToReadyOrderActivity() {
+        Intent intent = new Intent(this, ReadyOrderActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
 
 //        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 //
@@ -44,19 +119,6 @@ public class MainActivity extends AppCompatActivity {
 //                    System.out.println(sandwiches);
 //                })
 //                .addOnFailureListener((err) -> System.out.println("Error:"));
-    }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private void downloadSandwich(String id) {
@@ -102,17 +164,14 @@ public class MainActivity extends AppCompatActivity {
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null){
+                        if (error != null) {
                             System.out.println("error on listening");
-                        }
-                        else if (value == null){
+                        } else if (value == null) {
                             System.out.println("value is null");
-                        }
-                        else if (!value.exists()){
+                        } else if (!value.exists()) {
                             // handle delete
 
-                        }
-                        else{
+                        } else {
                             System.out.println("document was changed");
                             Sandwich sandwich = value.toObject(Sandwich.class);
 
