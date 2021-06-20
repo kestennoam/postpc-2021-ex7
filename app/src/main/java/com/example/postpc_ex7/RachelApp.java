@@ -18,7 +18,7 @@ public class RachelApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FirebaseApp.initializeApp(RachelApp.getInstance());
+        FirebaseApp.initializeApp(getInstance());
 
     }
 }

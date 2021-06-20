@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +36,8 @@ import java.util.UUID;
 
 public class NewOrderActivity extends AppCompatActivity {
     public final String NO_SANDWICH = "not ordered yet";
+    public final String NO_NAME = "noname";
+
     private static final int MAX_PICKLES = 10;
 
     Database db;
@@ -50,10 +54,11 @@ public class NewOrderActivity extends AppCompatActivity {
         // set logic components
         db = Database.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+
         sp.edit().putString("sandwichId", NO_SANDWICH).apply(); //ensure cleaning db
         sandwich = new Sandwich();
-        System.out.println(db);
-        System.out.println(sandwich.getId());
+
         // set sandwich
         sandwichLiveData = db.getLiveDataSandwich(sandwich.getId());
         // ensure not any sandwich on db
@@ -63,6 +68,7 @@ public class NewOrderActivity extends AppCompatActivity {
             } else {
                 Log.d("NewOrderActivity", "sandwich is in db");
                 sp.edit().putString("sandwichId", sandwich.getId()).apply();
+
                 // move to other activity
                 Intent intent = new Intent(this, EditOrderActivity.class);
                 startActivity(intent);
@@ -89,7 +95,39 @@ public class NewOrderActivity extends AppCompatActivity {
 //        addSandwichButton.setEnabled(false);
 
 
-        //todo costumer name and change plus button to true
+        // costumer
+        String costumerName = sp.getString("costumerName", NO_NAME);
+        if (!costumerName.equals(NO_NAME)) {
+            costumerIdEditTextView.setVisibility(View.GONE);
+            costumerIdTitle.setText("Welcome " + costumerName);
+        }
+        costumerIdEditTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @SuppressLint("CommitPrefEdits")
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                    System.out.println("111" + costumerIdEditTextView.getText().toString());
+                    if (costumerIdEditTextView.getText().toString().trim().length() > 0) {
+                        costumerIdTitle.setText("Welcome " + costumerIdEditTextView.getText().toString());
+                        costumerIdEditTextView.setVisibility(View.GONE);
+                        sp.edit().putString("costumerName", costumerIdEditTextView.getText().toString()).apply();
+                        System.out.println("check check " + sp.getString("costumerName", "nooo"));
+                    }
+                }
+                addSandwichButton.setEnabled(costumerIdEditTextView.getVisibility() == View.GONE);
+            }
+        });
+
+        costumerIdTitle.setOnClickListener(v -> {
+                addSandwichButton.setEnabled(costumerIdEditTextView.getVisibility() == View.GONE);
+            if (costumerIdEditTextView.getVisibility() == View.GONE) {
+                costumerIdTitle.setText("Edit Your Name");
+                costumerIdEditTextView.setVisibility(View.VISIBLE);
+
+            }
+        });
+
 
         // pickles
         picklesIncreaseButton.setOnClickListener(v -> {
@@ -152,6 +190,11 @@ public class NewOrderActivity extends AppCompatActivity {
         finish();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 }
 
 

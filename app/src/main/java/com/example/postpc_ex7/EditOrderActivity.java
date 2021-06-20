@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +36,8 @@ import java.util.UUID;
 public class EditOrderActivity extends AppCompatActivity {
 
     private static final int MAX_PICKLES = 10;
+    public final String NO_NAME = "noname";
+
     private Database db;
     private SharedPreferences sp;
     private LiveData<Sandwich> sandwichLiveData;
@@ -48,6 +51,7 @@ public class EditOrderActivity extends AppCompatActivity {
     private EditText commentEditText;
     private Switch tahiniSwitch;
     private Switch hummusSwitch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +143,39 @@ public class EditOrderActivity extends AppCompatActivity {
 
 
         //todo costumer name and change plus button to true
+        //todo costumer name and change plus button to true
+        String costumerName = sp.getString("costumerName", NO_NAME);
+        System.out.println("costuemerName: " + costumerName);
+        if (!costumerName.equals(NO_NAME)) {
+            costumerIdEditTextView.setVisibility(View.GONE);
+            costumerIdTitle.setText("Welcome " + costumerName);
+        }
+        costumerIdEditTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                    System.out.println("111" + costumerIdEditTextView.getText().toString());
+                    if (costumerIdEditTextView.getText().toString().trim().length() > 0) {
+                        costumerIdTitle.setText("Welcome " + costumerIdEditTextView.getText().toString());
+                        costumerIdEditTextView.setVisibility(View.GONE);
+                        sp.edit().putString("costumerName", costumerIdEditTextView.getText().toString());
+                    }
+                }
+                saveButton.setEnabled(costumerIdEditTextView.getVisibility() == View.GONE);
+            }
+        });
+
+        costumerIdTitle.setOnClickListener(v -> {
+            saveButton.setEnabled(costumerIdEditTextView.getVisibility() == View.GONE);
+            if (costumerIdEditTextView.getVisibility() == View.GONE) {
+                costumerIdTitle.setText("Edit Your Name");
+                costumerIdEditTextView.setVisibility(View.VISIBLE);
+
+            }
+        });
+
 
         // pickles
         picklesIncreaseButton.setOnClickListener(v -> {
@@ -166,7 +203,7 @@ public class EditOrderActivity extends AppCompatActivity {
 
     }
 
-    private void updateSandwichFields(){
+    private void updateSandwichFields() {
         hummusSwitch.setChecked(sandwich.isHummus());
         tahiniSwitch.setChecked(sandwich.isTahini());
         picklesTextView.setText(Integer.toString(sandwich.getPickles()));
@@ -182,9 +219,10 @@ public class EditOrderActivity extends AppCompatActivity {
         picklesIncreaseButton.setEnabled(bool);
         commentEditText.setEnabled(bool);
         costumerIdEditTextView.setEnabled(bool);
+        costumerIdTitle.setEnabled(bool);
     }
 
-    private void checkBoundsPickles(int pickles){
+    private void checkBoundsPickles(int pickles) {
         System.out.println("1212");
         if (pickles <= 0) {
             System.out.println("Noam");
@@ -218,6 +256,13 @@ public class EditOrderActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 
 }
 

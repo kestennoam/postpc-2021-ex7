@@ -1,8 +1,9 @@
 package com.example.postpc_ex7;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Sandwich {
+public class Sandwich implements Serializable {
     private final String id;
     private String customerName;
     private int pickles;
@@ -12,24 +13,21 @@ public class Sandwich {
     private String status;
 
 
-    public Sandwich(String customerName, int pickles, boolean hummus, boolean tahini, String comment, String status) {
+    public Sandwich(String customerName, int pickles, boolean hummus, boolean tahini, String comment) {
         this.id = UUID.randomUUID().toString();
         this.customerName = customerName;
         this.pickles = pickles;
         this.hummus = hummus;
         this.tahini = tahini;
         this.comment = comment;
-        this.status = status;
+        this.status = "init";
     }
 
     public Sandwich() {
-        this.id = UUID.randomUUID().toString();
-        this.status = "init";
-        customerName = "noname";
-        comment = "";
+        this("", 0, false, false, "");
     }
 
-    public Sandwich(Sandwich o){
+    public Sandwich(Sandwich o) {
         this.id = o.id;
         this.customerName = o.customerName;
         this.comment = o.comment;

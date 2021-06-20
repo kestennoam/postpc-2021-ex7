@@ -33,10 +33,10 @@ public class MainActivity extends AppCompatActivity {
 
         //todo set user name app and order
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-
         String sandwichId = sp.getString("sandwichId", NO_SANDWICH);
 
-        //todo not sure needed
+
+
         // no sandwich yet
         if (sandwichId.equals(NO_SANDWICH)) {
             System.out.println("No sandwich yet");
